@@ -1,0 +1,245 @@
+# Django テンプレートタグまとめ
+
+Python ベースのウェブアプリケーションフレームワーク Django のコアが提供するテンプレートタグ・テンプレートフィルタの一覧です。
+
+（サンプルコードのほとんどは公式ドキュメントのものです）
+
+- テンプレートタグ
+    - `autoescape`
+    - `block`
+    - `blocktrans`
+    - `comment`
+    - `csrf_token`
+    - `cycle`
+    - `debug`
+    - `extends`
+    - `filter`
+    - `firstof`
+    - `for`
+    - `for` … `empty`
+    - `get_available_languages`
+    - `get_current_language_bidi`
+    - `get_current_language`
+    - `get_language_info_list`
+    - `get_language_info`
+    - `get_media_prefix`
+    - `get_static_prefix`
+    - `if`
+    - `ifchanged`
+    - `ifequal` / `ifnotequal`
+    - `include`
+    - `load`
+    - `localize`
+    - `lorem`
+    - `now`
+    - `regroup`
+    - `resetcycle`
+    - `spaceless`
+    - `static`
+    - `templatetag`
+    - `trans`
+    - `url`
+    - `verbatim`
+    - `widthratio`
+    - `with`
+- テンプレートフィルタ
+    - `add`
+    - `addslashes`
+    - `apnumber`
+    - `capfirst`
+    - `center`
+    - `cut`
+    - `date`
+    - `default_if_none`
+    - `default`
+    - `dictsort`
+    - `dictsortreversed`
+    - `divisibleby`
+    - `escape`
+    - `escapejs`
+    - `filesizeformat`
+    - `first`
+    - `floatformat`
+    - `force_escape`
+    - `get_current_timezone`
+    - `get_digit`
+    - `intcomma`
+    - `intword`
+    - `iriencode`
+    - `join`
+    - `json_script`
+    - `language_bidi`
+    - `language_name_local`
+    - `language_name_translated`
+    - `language_name`
+    - `last`
+    - `length_is`
+    - `length`
+    - `linebreaks`
+    - `linebreaksbr`
+    - `linenumbers`
+    - `ljust`
+    - `localize`
+    - `localtime`
+    - `localtime`
+    - `lower`
+    - `make_list`
+    - `naturalday`
+    - `naturaltime`
+    - `ordinal`
+    - `phone2numeric`
+    - `pluralize`
+    - `pprint`
+    - `random`
+    - `rjust`
+    - `safe`
+    - `safeseq`
+    - `slice`
+    - `slugify`
+    - `stringformat`
+    - `striptags`
+    - `time`
+    - `timesince`
+    - `timeuntil`
+    - `timezone`
+    - `title`
+    - `truncatechars_html`
+    - `truncatechars`
+    - `truncatewords_html`
+    - `truncatewords`
+    - `unlocalize`
+    - `unordered_list`
+    - `upper`
+    - `urlencode`
+    - `urlize`
+    - `urlizetrunc`
+    - `utc`
+    - `wordcount`
+    - `wordwrap`
+    - `yesno`
+
+## テンプレートタグ
+
+### `autoescape`
+### `block`
+### `blocktrans`
+### `comment`
+### `csrf_token`
+### `cycle`
+### `debug`
+### `extends`
+### `filter`
+### `firstof`
+### `for`
+### `for` … `empty`
+### `get_available_languages`
+### `get_current_language_bidi`
+### `get_current_language`
+### `get_language_info_list`
+### `get_language_info`
+### `get_media_prefix`
+### `get_static_prefix`
+### `if`
+### `ifchanged`
+### `ifequal` / `ifnotequal`
+### `include`
+### `load`
+### `localize`
+### `lorem`
+### `now`
+### `regroup`
+### `resetcycle`
+### `spaceless`
+### `static`
+### `templatetag`
+### `trans`
+### `url`
+### `verbatim`
+### `widthratio`
+### `with`
+
+## テンプレートフィルタ
+
+### `add`
+### `addslashes`
+### `apnumber`
+### `capfirst`
+### `center`
+### `cut`
+### `date`
+### `default_if_none`
+### `default`
+### `dictsort`
+### `dictsortreversed`
+### `divisibleby`
+### `escape`
+### `escapejs`
+### `filesizeformat`
+### `first`
+### `floatformat`
+### `force_escape`
+### `get_current_timezone`
+### `get_digit`
+### `intcomma`
+### `intword`
+### `iriencode`
+### `join`
+### `json_script`
+### `language_bidi`
+### `language_name_local`
+### `language_name_translated`
+### `language_name`
+### `last`
+### `length_is`
+### `length`
+### `linebreaks`
+### `linebreaksbr`
+### `linenumbers`
+### `ljust`
+### `localize`
+### `localtime`
+### `localtime`
+### `lower`
+### `make_list`
+### `naturalday`
+### `naturaltime`
+### `ordinal`
+### `phone2numeric`
+### `pluralize`
+### `pprint`
+### `random`
+### `rjust`
+### `safe`
+### `safeseq`
+### `slice`
+### `slugify`
+### `stringformat`
+### `striptags`
+### `time`
+### `timesince`
+### `timeuntil`
+### `timezone`
+### `title`
+### `truncatechars_html`
+### `truncatechars`
+### `truncatewords_html`
+### `truncatewords`
+### `unlocalize`
+### `unordered_list`
+### `upper`
+### `urlencode`
+### `urlize`
+### `urlizetrunc`
+### `utc`
+### `wordcount`
+### `wordwrap`
+### `yesno`
+
+## 参考
+
+- [Built-in template tags and filters | Django documentation | Django](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/)
+- [`django.contrib.humanize` | Django documentation | Django](https://docs.djangoproject.com/en/3.0/ref/contrib/humanize/)
+- [Translation | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#specifying-translation-strings-in-template-code)
+- [Format localization | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/formatting/#topic-l10n-templates)
+- [Time zones | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/timezones/#time-zones-in-templates)
+- [Custom template tags and filters | Django documentation | Django](https://docs.djangoproject.com/en/3.0/howto/custom-template-tags/)
