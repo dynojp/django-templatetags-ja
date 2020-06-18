@@ -4,119 +4,118 @@ Python ベースのウェブアプリケーションフレームワーク Django
 
 （サンプルコードのほとんどは公式ドキュメントのものです）
 
-- テンプレートタグ
-    - `autoescape`
-    - `block`
-    - `blocktrans`
-    - `comment`
-    - `csrf_token`
-    - `cycle`
-    - `debug`
-    - `extends`
-    - `filter`
-    - `firstof`
-    - `for`
-    - `for` … `empty`
-    - `get_available_languages`
-    - `get_current_language`
-    - `get_current_language_bidi`
-    - `get_language_info`
-    - `get_language_info_list`
-    - `get_media_prefix`
-    - `get_static_prefix`
-    - `if`
-    - `ifchanged`
-    - `ifequal` / `ifnotequal`
-    - `include`
-    - `load`
-    - `localize`
-    - `lorem`
-    - `now`
-    - `regroup`
-    - `resetcycle`
-    - `spaceless`
-    - `static`
-    - `templatetag`
-    - `trans`
-    - `url`
-    - `verbatim`
-    - `widthratio`
-    - `with`
-- テンプレートフィルタ
-    - `add`
-    - `addslashes`
-    - `apnumber`
-    - `capfirst`
-    - `center`
-    - `cut`
-    - `date`
-    - `default_if_none`
-    - `default`
-    - `dictsort`
-    - `dictsortreversed`
-    - `divisibleby`
-    - `escape`
-    - `escapejs`
-    - `filesizeformat`
-    - `first`
-    - `floatformat`
-    - `force_escape`
-    - `get_current_timezone`
-    - `get_digit`
-    - `intcomma`
-    - `intword`
-    - `iriencode`
-    - `join`
-    - `json_script`
-    - `language_bidi`
-    - `language_name_local`
-    - `language_name_translated`
-    - `language_name`
-    - `last`
-    - `length_is`
-    - `length`
-    - `linebreaks`
-    - `linebreaksbr`
-    - `linenumbers`
-    - `ljust`
-    - `localize`
-    - `localtime`
-    - `localtime`
-    - `lower`
-    - `make_list`
-    - `naturalday`
-    - `naturaltime`
-    - `ordinal`
-    - `phone2numeric`
-    - `pluralize`
-    - `pprint`
-    - `random`
-    - `rjust`
-    - `safe`
-    - `safeseq`
-    - `slice`
-    - `slugify`
-    - `stringformat`
-    - `striptags`
-    - `time`
-    - `timesince`
-    - `timeuntil`
-    - `timezone`
-    - `title`
-    - `truncatechars_html`
-    - `truncatechars`
-    - `truncatewords_html`
-    - `truncatewords`
-    - `unlocalize`
-    - `unordered_list`
-    - `upper`
-    - `urlencode`
-    - `urlize`
-    - `urlizetrunc`
-    - `utc`
-    - `wordcount`
-    - `wordwrap`
-    - `yesno`
+- [テンプレートタグ](#テンプレートタグ)
+    - [`autoescape`](#autoescape)
+    - [`block`](#block)
+    - [`blocktrans`](#blocktrans)
+    - [`comment`](#comment)
+    - [`csrf_token`](#csrf_token)
+    - [`cycle`](#cycle)
+    - [`debug`](#debug)
+    - [`extends`](#extends)
+    - [`filter`](#filter)
+    - [`firstof`](#firstof)
+    - [`for`](#for)
+    - [`for` … `empty`](`#for--empty`)
+    - [`get_available_languages`](#get_available_languages)
+    - [`get_current_language`](#get_current_language)
+    - [`get_current_language_bidi`](#get_current_language_bidi)
+    - [`get_language_info`](#get_language_info)
+    - [`get_language_info_list`](#get_language_info_list)
+    - [`get_media_prefix`](#get_media_prefix)
+    - [`get_static_prefix`](#get_static_prefix)
+    - [`if`](#if)
+    - [`ifchanged`](#ifchanged)
+    - [`ifequal` / `ifnotequal`](`#ifequal--ifnotequal`)
+    - [`include`](#include)
+    - [`load`](#load)
+    - [`localize`](#localize)
+    - [`lorem`](#lorem)
+    - [`now`](#now)
+    - [`regroup`](#regroup)
+    - [`resetcycle`](#resetcycle)
+    - [`spaceless`](#spaceless)
+    - [`static`](#static)
+    - [`templatetag`](#templatetag)
+    - [`trans`](#trans)
+    - [`url`](#url)
+    - [`verbatim`](#verbatim)
+    - [`widthratio`](#widthratio)
+    - [`with`](#with)
+- [テンプレートフィルタ](#テンプレートフィルタ)
+    - [`add`](#add)
+    - [`addslashes`](#addslashes)
+    - [`apnumber`](#apnumber)
+    - [`capfirst`](#capfirst)
+    - [`center`](#center)
+    - [`cut`](#cut)
+    - [`date`](#date)
+    - [`default_if_none`](#default_if_none)
+    - [`default`](#default)
+    - [`dictsort`](#dictsort)
+    - [`dictsortreversed`](#dictsortreversed)
+    - [`divisibleby`](#divisibleby)
+    - [`escape`](#escape)
+    - [`escapejs`](#escapejs)
+    - [`filesizeformat`](#filesizeformat)
+    - [`first`](#first)
+    - [`floatformat`](#floatformat)
+    - [`force_escape`](#force_escape)
+    - [`get_current_timezone`](#get_current_timezone)
+    - [`get_digit`](#get_digit)
+    - [`intcomma`](#intcomma)
+    - [`intword`](#intword)
+    - [`iriencode`](#iriencode)
+    - [`join`](#join)
+    - [`json_script`](#json_script)
+    - [`language_bidi`](#language_bidi)
+    - [`language_name_local`](#language_name_local)
+    - [`language_name_translated`](#language_name_translated)
+    - [`language_name`](#language_name)
+    - [`last`](#last)
+    - [`length_is`](#length_is)
+    - [`length`](#length)
+    - [`linebreaks`](#linebreaks)
+    - [`linebreaksbr`](#linebreaksbr)
+    - [`linenumbers`](#linenumbers)
+    - [`ljust`](#ljust)
+    - [`localize`](#localize-1)
+    - [`localtime`](#localtime)
+    - [`lower`](#lower)
+    - [`make_list`](#make_list)
+    - [`naturalday`](#naturalday)
+    - [`naturaltime`](#naturaltime)
+    - [`ordinal`](#ordinal)
+    - [`phone2numeric`](#phone2numeric)
+    - [`pluralize`](#pluralize)
+    - [`pprint`](#pprint)
+    - [`random`](#random)
+    - [`rjust`](#rjust)
+    - [`safe`](#safe)
+    - [`safeseq`](#safeseq)
+    - [`slice`](#slice)
+    - [`slugify`](#slugify)
+    - [`stringformat`](#stringformat)
+    - [`striptags`](#striptags)
+    - [`time`](#time)
+    - [`timesince`](#timesince)
+    - [`timeuntil`](#timeuntil)
+    - [`timezone`](#timezone)
+    - [`title`](#title)
+    - [`truncatechars_html`](#truncatechars_html)
+    - [`truncatechars`](#truncatechars)
+    - [`truncatewords_html`](#truncatewords_html)
+    - [`truncatewords`](#truncatewords)
+    - [`unlocalize`](#unlocalize)
+    - [`unordered_list`](#unordered_list)
+    - [`upper`](#upper)
+    - [`urlencode`](#urlencode)
+    - [`urlize`](#urlize)
+    - [`urlizetrunc`](#urlizetrunc)
+    - [`utc`](#utc)
+    - [`wordcount`](#wordcount)
+    - [`wordwrap`](#wordwrap)
+    - [`yesno`](#yesno)
 
 ## テンプレートタグ
 
@@ -672,11 +671,6 @@ iterable なオブジェクトに対してループを回します。
 ```
 
 ### `localize`
-
-```django
-```
-
-### `localtime`
 
 ```django
 ```
