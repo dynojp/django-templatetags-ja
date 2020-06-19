@@ -28,7 +28,7 @@ Python ベースのウェブアプリケーションフレームワーク Django
     - [`get_static_prefix`](#get_static_prefix)
     - [`if`](#if)
     - [`ifchanged`](#ifchanged)
-    - [`ifequal` / `ifnotequal`](`#ifequal--ifnotequal`)
+    - [`ifequal` / `ifnotequal`](#ifequal--ifnotequal)
     - [`include`](#include)
     - [`load`](#load)
     - [`localize`](#localize)
