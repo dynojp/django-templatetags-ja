@@ -2,6 +2,8 @@
 
 Python ベースのウェブアプリケーションフレームワーク Django のコアが提供するテンプレートタグ・テンプレートフィルタの一覧です。
 
+対象の Django のバージョンは 3.0 です。
+
 （サンプルコードのほとんどは公式ドキュメントのものです）
 
 - [テンプレートタグ](#テンプレートタグ)
@@ -389,22 +391,74 @@ iterable なオブジェクトに対してループを回します。
 
 ### `get_media_prefix`
 
+設定項目 `MEDIA_URL` で設定されたメディアプリフィクスを返します。
+
 ```django
+{% load static %}
+<body data-media-url="{% get_media_prefix %}">
+{% '/media/' 等 %}
 ```
 
 ### `get_static_prefix`
 
+設定項目 `STATIC_URL` で設定されたスタティックファイルのプリフィクスを返します。
+
 ```django
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+<img src="{{ STATIC_PREFIX }}images/hi.jpg" alt="Hi!">
+<img src="{{ STATIC_PREFIX }}images/hi2.jpg" alt="Hello!">
 ```
+
+通常スタティックファイルの URL を出力したいときはテンプレートタグ `static` を使用するべきです。
 
 ### `if`
 
+変数の値によって出力する文字列を切り替えます。
+
 ```django
+{% if athlete_list %}
+    Number of athletes: {{ athlete_list|length }}
+{% elif athlete_in_locker_room_list %}
+    Athletes should be out of the locker room soon!
+{% else %}
+    No athletes.
+{% endif %}
 ```
+
+`if` の後に渡された変数が存在してなおかつ truthy なら（＝ `bool()` に渡したときに `False` を返すなら）、 `endif` までのブロックの中身を出力します。
+
+Python と同じように `elif` `else` を使うこともできます。
 
 ### `ifchanged`
 
+値がループのひとつ前の周から変更されたかどうかをチェックします。
+
+引数を渡すかどうかで挙動が異なります。
+
+引数が渡されなかった場合は、 `ifchanged` から `endifchanged` までの内容がループのひとつ前の周と異なる場合のみその内容を出力します。
+次の例では、日付の一覧を出力する中で、月が変わったときにのみ月の見出し（ `{{ date|date:"F" }}` ）を出力します。
+
 ```django
+<h1>Archive for {{ year }}</h1>
+
+{% for date in days %}
+    {% ifchanged %}<h3>{{ date|date:"F" }}</h3>{% endifchanged %}
+    <a href="{{ date|date:"M/d"|lower }}/">{{ date|date:"j" }}</a>
+{% endfor %}
+```
+
+引数が渡された場合は、渡された引数がループのひとつ前の周と変わった場合のみ `ifchanged` から `endifchanged` までの内容を出力します。
+次の例では、日付と時刻の一覧を出力する中で、日付が変わったときにのみ日付を出力します。
+
+```django
+{% for date in days %}
+    {% ifchanged date.date %} {{ date.date }} {% endifchanged %}
+    {% ifchanged date.hour date.date %}
+        {{ date.hour }}
+    {% endifchanged %}
+{% endfor %}
 ```
 
 ### `ifequal` / `ifnotequal`
