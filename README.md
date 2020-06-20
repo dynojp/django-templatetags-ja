@@ -407,7 +407,7 @@ iterable なオブジェクトに対してループを回します。
 {% endfor %}
 ```
 
-戻り値は `get_language_info` の戻り値と同等のオブジェクトを要素に持つリストです。
+戻り値は `get_language_info` の戻り値と同等のオブジェクトを要素に持つ `list` です。
 
 ### `get_media_prefix`
 
@@ -631,28 +631,168 @@ blogs/
 
 ### `regroup`
 
+共通のアトリビュートを持ったオブジェクトからなる `list` をアトリビュートの値でグルーピングします。
+
+文章での説明よりも例の方がわかりやすいです。
+次のような `list` 変数 `cities` があるときに
+
 ```django
+cities = [
+    {'name': 'Mumbai', 'population': '19,000,000', 'country': 'India'},
+    {'name': 'Calcutta', 'population': '15,000,000', 'country': 'India'},
+    {'name': 'New York', 'population': '20,000,000', 'country': 'USA'},
+    {'name': 'Chicago', 'population': '7,000,000', 'country': 'USA'},
+    {'name': 'Tokyo', 'population': '33,000,000', 'country': 'Japan'},
+]
 ```
+
+`regroup` タグを使えば次のようなリストを表す HTML を比較的かんたんに生成することができます。
+
+- India
+    - Mumbai: 19,000,000
+    - Calcutta: 15,000,000
+- USA
+    - New York: 20,000,000
+    - Chicago: 7,000,000
+- Japan
+    - Tokyo: 33,000,000
+
+具体的なコードは次のとおりです。
+
+```django
+{% regroup cities by country as country_list %}
+
+<ul>
+{% for country in country_list %}
+    <li>{{ country.grouper }}
+    <ul>
+        {% for city in country.list %}
+          <li>{{ city.name }}: {{ city.population }}</li>
+        {% endfor %}
+    </ul>
+    </li>
+{% endfor %}
+</ul>
+```
+
+`regroup` の戻り値 `country_list` は、各要素が `GroupedResult` オブジェクトの `list` です。
+`GroupedResult` オブジェクトは `grouper` と `list` という 2 つのフィールドを持つ `namedtuple` です。
+
+`GroupedResult` オブジェクトは `namedtuple` なので、同じ処理を次のような形でも記述できます。
+
+```django
+{% regroup cities by country as country_list %}
+
+<ul>
+{% for country, local_cities in country_list %}
+    <li>{{ country }}
+    <ul>
+        {% for city in local_cities %}
+          <li>{{ city.name }}: {{ city.population }}</li>
+        {% endfor %}
+    </ul>
+    </li>
+{% endfor %}
+</ul>
+```
+
+グルーピングのキーには、アトリビュートだけでなく、参照先のオブジェクトのアトリビュートや、引数を持たないメソッド等を使用することも可能です。
+
+`regroup` は元の値がグルーピングのキーに使われるアトリビュートでソート済みでないと正しく動かないので注意が必要です（自動的に対象のアトリビュートでソートしてからグルーピングしてくれるわけではありません）。
 
 ### `resetcycle`
 
+`cycle` タグのループを初期状態にリセットします。
+
+例えば次のようにすると、各 `coach` の最初の `<p>` タグのクラスが必ず `odd` になります。
+
 ```django
+{% for coach in coach_list %}
+    <h1>{{ coach.name }}</h1>
+    {% for athlete in coach.athlete_set.all %}
+        <p class="{% cycle 'odd' 'even' %}">{{ athlete.name }}</p>
+    {% endfor %}
+    {% resetcycle %}
+{% endfor %}
+```
+
+複数の `cycle` のループが回っている場合は、 `cycle` に `as` を付けて名前を付けることにより、特定の `cycle` だけをリセットすることができます。
+
+```django
+{% for item in list %}
+    <p class="{% cycle 'odd' 'even' as stripe %} {% cycle 'major' 'minor' 'minor' 'minor' 'minor' as tick %}">
+        {{ item.data }}
+    </p>
+    {% ifchanged item.category %}
+        <h1>{{ item.category }}</h1>
+        {% if not forloop.first %}{% resetcycle tick %}{% endif %}
+    {% endifchanged %}
+{% endfor %}
 ```
 
 ### `spaceless`
 
+範囲内の空白文字を除去します。
+
 ```django
+{% spaceless %}
+    <p>
+        <a href="foo/">あ い　う </a>
+    </p>
+{% endspaceless %}
 ```
+
+上のコードは次の HTML を出力します。
+
+```html
+<p><a href="foo/">あ い　う </a></p>
+```
+
+タブ文字や改行も除去対象に含まれます。
+
+ただし、除去されるのはタグとタグの間の空白文字だけです。
+タグとテキストの間、テキストとテキストの間の空白文字は除去されません。
 
 ### `static`
 
+設定項目 `STATIC_ROOT` 以下のスタティックファイルに対応する URL を生成します。
+
 ```django
+{% load static %}
+<img src="{% static "images/hi.jpg" %}" alt="Hi!">
+```
+
+その場で出力したくない場合は `as` を使えば出力せずに変数に格納できます。
+
+```django
+{% static "images/hi.jpg" as myphoto %}
+<img src="{{ myphoto }}">
 ```
 
 ### `templatetag`
 
+Django テンプレートにおける特殊な文字列を出力します。
+
 ```django
+{% templatetag openblock %} url 'entry_list' {% templatetag closeblock %}
 ```
+
+上のコードは次の HTML を出力します。
+
+```html
+{% url 'entry_list' %}
+```
+
+| 引数 | 出力 |
+| --- | --- |
+| `openblock` | `{%` |
+| `closeblock` | `%}` |
+| `openvariable` | `{{` |
+| `closevariable` | `}}` |
+| `openbrace` | `{` |
+| `closebrace` | `}` |
+| `opencomment` | `{#` |
+| `closecomment` | `#}` |
 
 ### `trans`
 
