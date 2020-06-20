@@ -218,7 +218,7 @@ Django の CSRF 保護機能について詳しくは次のページをご覧く�
 ```
 
 そのままでは `<` や `>` がエスケープされずに出力されるためページ上にうまく表示されません。
-ページ上で確認したいときは `filter force_escape` 等をあわせて使うと便利です。
+ページ上で確認したいときは `{% filter force_escape %}{% endfilter %}` 等をあわせて使うと便利です。
 
 ただし、デバッグ情報の出力にはこの `debug` タグではなく [`django-debug-toolbar`](https://github.com/jazzband/django-debug-toolbar) がよく使われます。
 
@@ -783,29 +783,116 @@ Django テンプレートにおける特殊な文字列を出力します。
 
 ### `trans`
 
+対象の文字列の翻訳を出力します。
+
 ```django
+{% load i18n %}
+<title>{% trans "This is the title." %}</title>
+```
+
+内部的には `django.utils.translation.gettext()` を使用します。
+
+`trans` はテンプレート変数を含むテキストの翻訳には使えません。
+テンプレート変数を含むテキストの翻訳には `blocktrans` を使用してください。
+
+翻訳後の文字列を複数箇所で使いたい場合は `as` を使って変数に格納できます。
+
+```django
+{% load i18n %}
+{% trans "This is the title" as the_title %}
+
+<title>{{ the_title }}</title>
+<meta name="description" content="{{ the_title }}">
+```
+
+コンテキスチュアルマーカーを付与したい場合は `context` キーワードが使用できます。
+
+```django
+{% trans "May" context "month name" %}
+```
+
+尚、タグやフィルタに文字列リテラルの翻訳を渡したいときは `_()` シンタックスが使えます。
+
+```django
+{% some_tag _("Page not found") value|yesno:_("yes,no") %}
 ```
 
 ### `url`
 
+特定のビューに対応した絶対パスを生成します。
+
 ```django
+{% url 'articles:list' %}
+```
+
+第 1 引数には URL パターン名を渡します。
+URL パターン名に名前空間を含む場合は、上の例のように `:` で区切ります。
+
+URL パラメータを渡したい場合は第 2 引数以降で指定できます。
+
+```django
+{% url 'some-url-name' v1 v2 %}
+```
+
+URL パラメータは positional 引数でも keyword 引数でも指定することが可能です。
+
+```django
+{% url 'some-url-name' arg1=v1 arg2=v2 %}
+```
+
+必須の URL パラメータはすべて渡さないとエラーが出ます。
+このエラーがよく起こるのは、引数として渡した変数が存在しない場合です。
+
+```django
+{% for article in article_list %}
+  {# タイポ `artcle` で存在しない変数を指定した結果エラーが起こる #}
+  <a href="{% url "articles:detail" artcle.id %}">{{ article.title }}</a>
+{% endfor %}
 ```
 
 ### `verbatim`
 
+Django テンプレートエンジンによる評価を無効化します。
+
 ```django
+{% verbatim %}
+    {{if dying}}Still alive.{{/if}}
+{% endverbatim %}
 ```
+
+範囲内の文字列をテンプレートとして評価せずそのまま出力します。
+典型的な使いどころは、 Django と似たテンプレートエンジンを持つ JavaScript を出力する場合です。
 
 ### `widthratio`
 
+高さに対応した幅を出力します。
+
 ```django
+<img src="bar.png" alt="Bar"
+     height="10" width="{% widthratio this_value max_value max_width %}">
 ```
+
+各変数の値が `this_value` が 175 、 `max_value` が 200 、 `max_width` が 100 のとき、この `widthratio` の出力は 88 になります（ `88 = round(175 / 200 * 100)` ）。
 
 ### `with`
 
+範囲内でのみ有効な一時的な変数を定義します。
+
 ```django
+{% with total=business.employees.count %}
+    {{ total }} employee{{ total|pluralize }}
+{% endwith %}
 ```
 
+複数の変数をまとめて定義することもできます。
+
+```django
+{% with alpha=1 beta=2 %}
+    ...
+{% endwith %}
+```
+
+古いシンタックス `{% with business.employeees.count as total %}` もまだ使用できます。
 
 ## テンプレートフィルタ
 
