@@ -372,11 +372,28 @@ iterable なオブジェクトに対してループを回します。
 
 戻り値は以下の情報を持つオブジェクトです。
 
-| `lang_info.code` | 言語コード |
-| `lang_info.name_local` | ローカルな名前 |
-| `lang_info.name` | 英語での名前 |
-| `lang_info.bidi` | 右から左に読む言語かどうか |
-| `lang_info.name_translated` | アクティブな言語での名前 |
+<table>
+    <tr>
+        <th><code>lang_info.code</code></th>
+        <td>言語コード</td>
+    </tr>
+    <tr>
+        <th><code>lang_info.name_local</code></th>
+        <td>ローカルな名前</td>
+    </tr>
+    <tr>
+        <th><code>lang_info.name</code></th>
+        <td>英語での名前</td>
+    </tr>
+    <tr>
+        <th><code>lang_info.bidi</code></th>
+        <td>右から左に読む言語かどうか</td>
+    </tr>
+    <tr>
+        <th><code>lang_info.name_translated</code></th>
+        <td>アクティブな言語での名前</td>
+    </tr>
+</table>
 
 ### `get_language_info_list`
 
