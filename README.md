@@ -138,7 +138,7 @@ HTML のエスケープの有効・無効を切り替えます。
 `extends` タグを使って他のテンプレートを継承したときに特定のブロックの中身を書き換えます。
 
 ```django
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block main_content %}
 {% endblock main_content %}
@@ -149,7 +149,7 @@ HTML のエスケープの有効・無効を切り替えます。
 継承元の内容を上書きするのではなく追加したいときは `block.super` 変数を使用します。
 
 ```django
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block breadcrumbs %}
 {{ block.super }} / {{ title }}
@@ -201,7 +201,7 @@ Django の CSRF 保護機能について詳しくは次のページをご覧く�
 
 ```django
 {% for item in item_list %}
-    <tr class="{% cycle 'odd' 'even' %}">
+    <tr class="{% cycle "odd" "even" %}">
         ...
     </tr>
 {% endfor %}
@@ -227,14 +227,17 @@ Django の CSRF 保護機能について詳しくは次のページをご覧く�
 他のテンプレートを継承します。
 
 ```django
-{% extends 'base.html' %}
+{% extends "base.html" %}
 ```
 
 ```django
-{% extends 'blog.html' %}
+{% extends "blog/article_list.html" %}
 ```
 
-いっしょに `block` タグを使ってブロックを上書きして使用します。
+テンプレート名はテンプレートローダーのルートディレクトリからのパスで指定します。
+`./` または `../` から始めることで、現在のテンプレートからの相対パスでも指定できます。
+
+通常は `block` タグと併用してブロックの内容を上書きして使用します。
 
 ### `filter`
 
@@ -340,7 +343,7 @@ iterable なオブジェクトに対してループを回します。
 {% load i18n %}
 {% get_current_language as language %}
 {{ language }}
-{# 'ja' #}
+{# "ja" #}
 ```
 
 言語コードは例えば日本語の場合は `ja` です。
@@ -396,7 +399,7 @@ iterable なオブジェクトに対してループを回します。
 ```django
 {% load static %}
 <body data-media-url="{% get_media_prefix %}">
-{% '/media/' 等 %}
+{% "/media/" 等 %}
 ```
 
 ### `get_static_prefix`
@@ -463,32 +466,150 @@ Python と同じように `elif` `else` を使うこともできます。
 
 ### `ifequal` / `ifnotequal`
 
+`ifequal` と `ifnotequal` は 2 つの変数の値が等しいかどうかで出力内容を変更するためのタグですが、どちらも `if` で等価なコードが書けるため deprecated となっています。
+
 ```django
+{% if a == b %}
+    ...
+{% else %}
+    ...
+{% endif %}
 ```
 
 ### `include`
 
+他のテンプレートを読み込みます。
+
 ```django
+{% include "sidebar.html" %}
+```
+
+読み込まれたテンプレートでは読み込み側のコンテキストがそのまま利用できます。
+
+`with` を使うとコンテキストを追加（または上書き）することができます。
+
+```django
+{% include "sidebar.html" with page_type="detail" %}
+```
+
+`with` の末尾に `only` をつけると、読み込まれた方のテンプレートでは明示的に渡されたコンテキストのみが利用できます。
+
+```django
+{% include "sidebar.html" with page_type="detail" only %}
 ```
 
 ### `load`
 
+カスタムテンプレートタグのセットを読み込みます。
+
 ```django
+{% load static %}
+
+{% get_media_prefix %}
+```
+
+次のようにネストされたテンプレートタグのセットを読み込むには `.` を使用します。
+
+```text
+blogs/
+    templatetags/
+        articles/
+            __init__.py
+            utils.py
+        __init__.py
+    ...
+```
+
+```django
+{% load articles.utils %}
+```
+
+`from` を使えば特定のタグやフィルタだけを個別に読み込むこともできます。
+
+```django
+{% load get_media_prefix get_static_prefix from static %}
+
+{% get_media_prefix %}
+{% get_static_prefix %}
+```
+
+複数のタグセットをまとめて読み込むこともできます。
+
+```django
+{% load static i18n %}
 ```
 
 ### `localize`
 
+範囲内の変数のローカライズの有効・無効を切り替えます。
+
 ```django
+{% load l10n %}
+
+{% localize on %}
+    {{ value }}
+{% endlocalize %}
+
+{% localize off %}
+    {{ value }}
+{% endlocalize %}
 ```
+
+設定項目 `USE_L10N` よりも細かい粒度での制御ができます。
 
 ### `lorem`
 
+ランダムな "lorem ipsum" ラテン語テキストを表示します。
+
 ```django
+{% lorem [count] [method] [random] %}
+```
+
+オプション引数の意味合いは次のとおりです。
+
+- `count`: 要素数。デフォルトは 1 。
+- `method`: `w` は単語を、 `p` は HTML パラグラフ（ `<p>` ）を、 `b` はプレーンテキストのパラグラフブロックを出力する。
+- `random`: `random` が渡されたときはランダムな文字列を、渡されなかったときは固定の文字列を出力する。
+
+使用例:
+
+```django
+{# プレーンテキストのパラグラフを 1 つ出力する #}
+{% lorem %}
+
+{# HTML のパラグラフを 10 個出力する #}
+{% lorem 10 p %}
+
+{# 単語を 20 個ランダムで出力する #}
+{% lorem 20 w random %}
 ```
 
 ### `now`
 
+現在の日時を指定されたフォーマットで出力します。
+
 ```django
+現在の日時は {% now "Y/m/d H:i:s" %} です。
+```
+
+以下のいずれかの設定項目で定義されたフォーマットを使うこともできます。
+
+- `DATE_FORMAT`
+- `DATETIME_FORMAT`
+- `SHORT_DATE_FORMAT`
+- `SHORT_DATETIME_FORMAT`
+
+例:
+
+```django
+本日の日付は {% now "DATE_FORMAT" %} です。
+```
+
+`as` を使うことで結果を変数に格納し別の場所で利用することもできます。
+
+```django
+{% now "Y" as current_year %}
+{% blocktrans %}Copyright {{ current_year }}{% endblocktrans %}
 ```
 
 ### `regroup`
