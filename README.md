@@ -52,8 +52,8 @@ Python ベースのウェブアプリケーションフレームワーク Django
     - [`center`](#center)
     - [`cut`](#cut)
     - [`date`](#date)
-    - [`default_if_none`](#default_if_none)
     - [`default`](#default)
+    - [`default_if_none`](#default_if_none)
     - [`dictsort`](#dictsort)
     - [`dictsortreversed`](#dictsortreversed)
     - [`divisibleby`](#divisibleby)
@@ -434,7 +434,7 @@ iterable なオブジェクトに対してループを回します。
 {% endif %}
 ```
 
-`if` の後に渡された変数が存在してなおかつ truthy なら（＝ `bool()` に渡したときに `False` を返すなら）、 `endif` までのブロックの中身を出力します。
+`if` の後に渡された変数が存在してなおかつ truthy なら（＝ `bool()` に渡したときの戻り値が `False` なら）、 `endif` までのブロックの中身を出力します。
 
 Python と同じように `elif` `else` を使うこともできます。
 
@@ -898,72 +898,271 @@ Django テンプレートエンジンによる評価を無効化します。
 
 ### `add`
 
+対象の値に引数で渡された値を追加します。
+
 ```django
+{{ value|add:"2" }}
+```
+
+`add` フィルタは最初に各値を `int` に変換して追加しようとします。
+それに失敗したらそのまま追加しようとします。
+それも失敗した場合は空文字列を返します。
+
+上の例で `value` の値が 10 のとき、出力は 12 になります。
+
+`+` 演算子が使える要素同士であればどのような値にも使えるので、例えば、 `values1` と `values2` がともに `list` であれば次のようなこともできます。
+
+```django
+{# values1 と values2 の値を順番に出力する #}
+{% for value in values1|add:values2 %}
+  <li>{{ value }}</li>
+{% endfor %}
 ```
 
 ### `addslashes`
 
+文字列内の引用符 `'` と `"` の前にバックスラッシュを追加します。
+
 ```django
+{{ value|addslashes }}
 ```
+
+`value` が `I'm using Django.` の場合、出力は `I\'m using Django` になります。
+
+CSV 内のセルのエスケープ等に有用とされています。
 
 ### `apnumber`
 
+1 から 9 までの数字をアルファベット表現に変換します。
+1 未満と 10 以上の数字はそのまま返します。
+
 ```django
+{% load humanize %}
+<ul>
+  {% for number in numbers %}
+    <li>{{ number|apnumber }}</li>
+  {% endfor %}
+</ul>
 ```
+
+例えばこのコードは以下のリストに相当する HTML を生成します。
+
+- 0
+- one
+- two
+- three
+- four
+- five
+- six
+- seven
+- eight
+- nine
+- 10
+- 11
+- 12
+
+公式サイトではこれは「 Associated Press スタイル」（ AP 通信のスタイルブックのスタイル？）に従うと説明されています。
+
+尚このタグを利用するには、設定項目 `INSTALLED_APPS` に `django.contrib.humanize` を追加する必要があります。
 
 ### `capfirst`
 
+先頭文字を大文字に変換します。
+先頭文字がアルファベットではない場合は効果はありません。
+
 ```django
+{{ value|capfirst }}
 ```
 
 ### `center`
 
+指定された字数の中で文字列を中央揃えにして出力します。
+
 ```django
+<pre>
+"{{ value|center:"15" }}"
+</pre>
 ```
+
+上のコードで `value` が `Django` のとき、出力は `"     Django    "` になります。
 
 ### `cut`
 
+文字列内の特定の文字を除去します。
+
 ```django
+{{ value|cut:"ん" }}
 ```
+
+上のコードで `value` が `にんじん` のとき、出力は `にじ` になります。
+
+除去できる文字の種類は 1 文字だけです。
+内部では `str.replace()` メソッドが使われています。
 
 ### `date`
 
+日付オブジェクトを指定されたフォーマットで出力します。
+
 ```django
+{{ value|date:"Y/m/d (D) H:i:s" }}
 ```
 
-### `default_if_none`
+上のコードで `value` が `datetime.datetime(2018, 5, 27, 3, 32, 30)` の場合、出力は `2018/05/27 (Sun) 03:32:30` になります。
+
+フォーマット指定には PHP の `date()` 関数と似たフォーマット指定子が利用できます（ PHP からの移行をかんたんにするために意図的に PHP 互換で作られたとのことです）。
+
+以下のいずれかの設定項目で定義されたフォーマットを使うこともできます。
+
+- `DATE_FORMAT`
+- `DATETIME_FORMAT`
+- `SHORT_DATE_FORMAT`
+- `SHORT_DATETIME_FORMAT`
+
+例:
 
 ```django
+投稿日: {% value|date:"DATE_FORMAT" %}
+```
+
+フォーマットが省略されたときは `DATE_FORMAT` のフォーマットが使用されます。
+
+```django
+{{ value|date }}
 ```
 
 ### `default`
 
+値が falsy （＝ `bool()` に渡されたときの戻り値が `False` ）の場合に、引数で指定された文字列を出力します。値が truthy の場合はそのまま出力します。
+
 ```django
+{{ value|default:"nothing" }}
 ```
+
+### `default_if_none`
+
+値が `None` の場合に引数で指定された文字列を出力します。値が `None` 以外の場合はそのまま出力します。
+
+```django
+{{ value|default_if_none:"nothing" }}
+```
+
+変数が存在しない場合は何も出力しません。
 
 ### `dictsort`
 
+各要素が `dict` の `list` を引数で指定されたキーでソートします。
+順序は昇順です。
+
 ```django
+{{ value|dictsort:"age" }}
+```
+
+上のコードで `value` の値が次の `list` のとき
+
+```python
+[
+    {'name': 'ポチ', 'age': 3},
+    {'name': 'タマ', 'age': 1},
+    {'name': 'タロウ', 'age': 10},
+]
+```
+
+次の出力になります。
+
+```html
+[{'name': 'タマ', 'age': 1}, {'name': 'ポチ', 'age': 3}, {'name': 'タロウ', 'age': 10}]
+```
+
+`for` タグや `with` タグと組み合わせて使用すると有用です。
+
+```django
+<ul>
+  {% for item in d|dictsort:"age" %}
+    <li>{{ item.name }}: {{ item.age }}</li>
+  {% endfor %}
+</ul>
+```
+
+出力のイメージ:
+
+- タマ: 1
+- ポチ: 3
+- タロウ: 10
+
+ネストされた　`dict` に対してキーを指定することもできます。
+
+```django
+{% for book in books|dictsort:"author.age" %}
+    * {{ book.title }} ({{ book.author.name }})
+{% endfor %}
+```
+
+`dictsort` は内部で `__getitem__` を使用するので、各要素が `dict` の `list` だけでなく、各要素が `list` や `tuple` の `list` にも使えます。
+
+```django
+{{ value|dictsort:0 }}
 ```
 
 ### `dictsortreversed`
 
-```django
-```
+各要素が `dict` の `list` を引数で指定されたキーでソートします。
+ただし、順序が `dictsort` とは異なり降順です。
 
 ### `divisibleby`
 
+値が指定された引数で割り切れる場合に `True` を返します。
+
 ```django
+{{ value|divisibleby:"3" }}
 ```
 
 ### `escape`
 
+HTML の特殊文字をエスケープします。
+
+変換される文字は以下のとおりです。
+
+| 変換前 | 変換後 |
+| --- | --- |
+| `<` | `&lt;` |
+| `>` | `&gt;` |
+| `'` | `&#x27;` |
+| `"` | `&quot;` |
+| `&` | `&amp;` |
+
 ```django
+{{ value|escape }}
+```
+
+このエスケープ処理はデフォルトで有効になっているため、通常のコンテキストでは効果はありません（エスケープが二重に走ったりはしません）。
+
+`escape` フィルタは `autoescape` タグで自動エスケープを無効にしたときに選択的にエスケープをしたいときに有用です。
+
+```django
+{% autoescape off %}
+    {{ title|escape }}
+{% endautoescape %}
 ```
 
 ### `escapejs`
 
+JavaScript の文字列として使われる値をエスケープします。
+
 ```django
+<script>
+var value = "{{ value|escapejs }}";
+</script>
+```
+
+上のコードで `value` が文字列 `testing\r\njavascript 'string" <b>escaping</b>` のとき、出力は `testing\u000D\u000Ajavascript \u0027string\u0022 \u003Cb\u003Eescaping\u003C/b\u003E` になります。
+
+文字列の中で使うと HTML シンタックスエラーを防いでくれますが、 JavaScript のテンプレートリテラルといっしょに使うと XSS の危険があるためテンプレートリテラルと併用すべきではありません。
+例えば、次のコードで `value` に `${alert(100)}` という文字列が渡されると ブラウザが `alert(100)` を実行してしまいます。
+
+```django
+<script>
+var value = `{{ value|escapejs }}`;
+</script>
 ```
 
 ### `filesizeformat`
