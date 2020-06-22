@@ -71,12 +71,12 @@ Python ベースのウェブアプリケーションフレームワーク Django
     - [`join`](#join)
     - [`json_script`](#json_script)
     - [`language_bidi`](#language_bidi)
+    - [`language_name`](#language_name)
     - [`language_name_local`](#language_name_local)
     - [`language_name_translated`](#language_name_translated)
-    - [`language_name`](#language_name)
     - [`last`](#last)
-    - [`length_is`](#length_is)
     - [`length`](#length)
+    - [`length_is`](#length_is)
     - [`linebreaks`](#linebreaks)
     - [`linebreaksbr`](#linebreaksbr)
     - [`linenumbers`](#linenumbers)
@@ -1183,14 +1183,14 @@ Python から JavaScript に値を受け渡ししたい場合は後から追加�
 
 ### `first`
 
-`list` または `tuple` の最初の要素を返します。
+`list` または `tuple` の先頭の要素を返します。
 
 ```django
 {{ value|first }}
 ```
 
-最初の要素が取得できないときは何も出力しません。
-内部では `value[0]` で最初の要素を取得するので、インデックスアクセスのできない iterator はサポートしていません。
+先頭の要素が取得できないときは何も出力しません。
+内部では `value[0]` で先頭の要素を取得するので、インデックスアクセスのできない iterator はサポートしていません。
 
 ### `floatformat`
 
@@ -1404,52 +1404,174 @@ var value = JSON.parse(document.getElementById('hello-data').textContent);
 
 ### `language_bidi`
 
-```django
-```
-
-### `language_name_local`
+言語コードに対して、言語が右から左に読む言語（アラビア語等）の場合のみ `True` を返します。
 
 ```django
+{% load i18n %}
+<ul>
+<li>en: {{ 'en'|language_bidi }}</li>
+<li>ja: {{ 'ja'|language_bidi }}</li>
+<li>ar: {{ 'ar'|language_bidi }}</li>
+</ul>
 ```
 
-### `language_name_translated`
+上のコードは次のリストに対応する HTML を生成します。
 
-```django
-```
+- en: False
+- ja: False
+- ar: True
 
 ### `language_name`
 
+言語コードに対して、英語での言語名を返します。
+
 ```django
+{% load i18n %}
+{{ 'ja'|language_name }}
+```
+
+上のコードは `Japanese` を出力します。
+
+### `language_name_local`
+
+言語コードに対して、その言語での言語名を返します。
+
+```django
+{% load i18n %}
+{{ 'ja'|language_name_local }}
+```
+
+上のコードは `日本語` を出力します。
+
+### `language_name_translated`
+
+言語コードに対して、現在アクティブな言語での言語名を返します。
+
+```django
+{% load i18n %}
+{{ 'ja'|language_name_translated }}
 ```
 
 ### `last`
 
-```django
-```
-
-### `length_is`
+`list` または `tuple` の末尾の要素を返します。
 
 ```django
+{{ value|first }}
 ```
+
+末尾の要素が取得できないときは何も出力しません。
+内部では `value[-1]` で末尾の要素を取得するので、インデックスアクセスのできない iterator はサポートしていません。
 
 ### `length`
 
+iterable な値の要素数を返します。
+
 ```django
+{{ value|length }}
 ```
+
+内部的には `len(value)` が行われています。
+`len()` が適用できない値に対しては `0` を返します。
+
+### `length_is`
+
+渡された値の長さが引数で指定された数と一致するかどうかをチェックします。
+
+```django
+{{ value|length_is:"4" }}
+```
+
+一致する場合は `True` を、一致しない場合は `False` を返します。
+内部的には `len(value) == int(param)` のチェックが行われます。
+`len()` が適用できない値に対しては空文字列を返します。
 
 ### `linebreaks`
 
+プレーンテキスト内の改行文字を適切な HTML に変換します。
+改行 1 つは `<br>` タグに、連続した改行は `<p>` タグに変換します。
+
 ```django
+{{ body|linebreaks }}
+```
+
+上のコードで `body` が次のように定義されていた場合、
+
+```python
+body = """昔々あるところに
+おじいさんとおばあさんが
+暮らしていました。
+
+ある日おばあさんが川に洗濯に出かけると
+大きな桃が流れてきました。
+"""
+```
+
+出力は次のとおりになります。
+
+```html
+<p>昔々あるところに<br>おじいさんとおばあさんが<br>暮らしていました。</p>
+
+<p>ある日おばあさんが川に洗濯に出かけると<br>大きな桃が流れてきました。<br></p>
 ```
 
 ### `linebreaksbr`
 
+プレンーテキスト内の改行文字を `<br>` に変換します。
+`linebreaks` が連続した改行を `<p>` タグに変換するのに対し、 `linebreaksbr` はすべての改行を `<br>` タグに変換します。
+
 ```django
+{{ body|linebreaksbr }}
+```
+
+上のコードで `body` が次のように定義されていた場合、
+
+```python
+body = """昔々ある村に
+浦島太郎という若者がいました。
+
+ある日浦島太郎が海岸を通りかかると
+子どもたちが大きなカメをいじめていました。
+"""
+```
+
+出力は次のとおりになります。
+
+```html
+昔々ある村に<br>浦島太郎という若者がいました。<br><br>ある日浦島太郎が海岸を通りかかると<br>子どもたちが大きなカメをいじめていました。<br>
 ```
 
 ### `linenumbers`
 
+テキストに行番号を付けます。
+
 ```django
+{{ body|linenumbers }}
+```
+
+上のコードで `body` が次のように定義されていた場合、
+
+```python
+body = """昔々あるところに
+心の優しいおじいさんとおばあさんが住んでいました。
+ふたりはシロという名前の犬を飼っていました。
+"""
+```
+
+出力は次のとおりになります。
+
+```html
+1. 昔々あるところに
+2. 心の優しいおじいさんとおばあさんが住んでいました。
+3. ふたりはシロという名前の犬を飼っていました。
+4.
+```
+
+このままではブラウザで見た場合は改行が失われます。
+`linenumbers` の後に `linebreaksbr` を付ける等すればきれいに表示されます:
+
+```django
+{{ body|linenumbers|linebreaksbr }}
 ```
 
 ### `ljust`
