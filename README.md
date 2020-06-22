@@ -1165,59 +1165,241 @@ var value = `{{ value|escapejs }}`;
 </script>
 ```
 
+Python から JavaScript に値を受け渡ししたい場合は後から追加された `json_script` フィルタを使うと便利です。
+
 ### `filesizeformat`
 
+ファイルサイズの数字を人間が読みやすい形に変換します。
+
 ```django
+{{ value|filesizeformat }}
 ```
+
+例:
+
+- `13 KB`
+- `4.1 MB`
+- `102 bytes`
 
 ### `first`
 
+`list` または `tuple` の最初の要素を返します。
+
 ```django
+{{ value|first }}
 ```
+
+最初の要素が取得できないときは何も出力しません。
+内部では `value[0]` で最初の要素を取得するので、インデックスアクセスのできない iterator はサポートしていません。
 
 ### `floatformat`
 
+指定された桁数で浮動小数点をフォーマットします。
+
 ```django
+{{ value|floatformat:3 }}
 ```
+
+引数には正の整数と負の整数が使えます。
+引数が正の数の場合は、小数点以下指定された桁を残してフォーマットします。
+
+| value | Template | Output |
+| --- | --- | --- |
+| `34.23234` | `{{ value|floatformat:3 }}` | 34.232 |
+| `34.00000` | `{{ value|floatformat:3 }}` | `34.000` |
+| `34.26000` | `{{ value|floatformat:3 }}` | `34.260` |
+
+引数が負の数の場合は、基本的には正の数の場合と同じですが、値が整数とみなせる場合は小数点以下を出力しません。
+
+| value | Template | Output |
+| --- | --- | --- |
+34.23234    {{ value|floatformat:"-3" }}    34.232
+34.00000    {{ value|floatformat:"-3" }}    34
+34.26000    {{ value|floatformat:"-3" }}    34.260
+
+引数を省略することもでき、そのときの挙動は引数が `-1` のときの挙動になります。
+
+| value | Template | Output |
+| --- | --- | --- |
+| `34.23234` | `{{ value|floatformat }}` | `34.2` |
+| `34.00000` | `{{ value|floatformat }}` | `34` |
+| `34.26000` | `{{ value|floatformat }}` | `34.3` |
 
 ### `force_escape`
 
+HTML の特殊文字をエスケープします。
+処理内容は `escape` と同じですが、 `escape` がエスケープ処理が重複して起こらないようにするのに対し、 `force_escape` はその場でエスケープ処理を必ず行います。
+
 ```django
+{% autoescape off %}
+    {{ body|linebreaks|force_escape }}
+{% endautoescape %}
 ```
+
+`filter` タグと組み合わせて使うとタグの出力を強制的にエスケープすることができます。
+
+```django
+<pre>
+  {% filter force_escape %}
+  {% debug %}
+  {% endfilter %}
+</pre>
+```
+
+レアケースを除き通常は `escape` を使います。
 
 ### `get_current_timezone`
 
+現在アクティブなタイムゾーンを返します。
+
 ```django
+{% load tz %}
+{% get_current_timezone as TIME_ZONE %}
+{{ TIME_ZONE }}
 ```
+
+必ず `as` を用いて変数に格納する必要があります。
+
+同じ値を取得する別の方法として、コンテキストプロセッサ `django.template.context_processors.tz` とコンテキスト変数 `TIME_ZONE` を使う方法もあります。
 
 ### `get_digit`
 
+渡された値を `int` とみなして、引数で指定された桁目の数字を返します。
+
 ```django
+{{ value|get_digit:"2" }}
 ```
+
+上のコードで `value` が `50134` の場合、出力は `3` になります。
+
+`int` とみなせない値には何も処理を加えずそのまま返します。
+渡された値の桁数が引数で指定された桁よりも少ない場合は `0` を返します。
 
 ### `intcomma`
 
+`int` （または `float` ）にみなせる値を 3 桁ごとに `,` を付けた表現に変換します。
+
 ```django
+{% load humanize %}
+{{ value|intcomma }}
 ```
+
+例:
+
+| 変換前 | 変換後 |
+| --- | --- |
+| `4500` | `4,500` |
+| `4500.2` | `4,500.2` |
+| `45000` | `45,000` |
+| `450000` | `450,000` |
+| `4500000` | `4,500,000` |
+
+尚このタグを利用するには、設定項目 `INSTALLED_APPS` に `django.contrib.humanize` を追加する必要があります。
+
+設定項目 `USE_L10N` と `USE_THOUSAND_SEPARATOR` が共に `True` の場合、 `intcomma` と同様の処理が自動で行われます。
 
 ### `intword`
 
+`int` とみなせる値を人間が読みやすい表現に変換します。
+
 ```django
+{% load humanize %}
+{{ value|intword }}
 ```
+
+```django
+{% load humanize %}
+<ul>
+  <li>{{ 10000|intword }}</li>
+  <li>{{ 1000000|intword }}</li>
+  <li>{{ 10000000000|intword }}</li>
+  <li>{{ 10000000000000|intword }}</li>
+  <li>{{ 10000000000000000|intword }}</li>
+  <li>{{ 10000000000000000000|intword }}</li>
+</ul>
+```
+
+上のコードは次のリストに対応する HTML を出力します。
+
+- 10000
+- 1.0 million
+- 10.0 billion
+- 10.0 trillion
+- 10.0 quadrillion
+- 10.0 quintillion
+
+`10^100` （ Googol ）までがサポートされているとのことです。
+
+言語を日本語にする場合は使うシーンがあまり無さそうです。
+
+尚このタグを利用するには、設定項目 `INSTALLED_APPS` に `django.contrib.humanize` を追加する必要があります。
 
 ### `iriencode`
 
+IRI 文字列を ASCII 文字のみからなる URI にエンコードします。
+
 ```django
+{{ value|iriencode }}
 ```
+
+特定の文字列を URL に含めるときに使用します。
+
+例:
+
+| 変換前 | 変換後 |
+| --- | --- |
+| `?test=1&me=2` | `?test=1&amp;me=2` |
+| `/news/犬/` | `/news/%E7%8A%AC/` |
+| `/news/🐶/` | `/news/%F0%9F%90%B6/` |
+
+IRI は Internationalized Resource Identifier の、 URI は Universal Resource Identifier の略語です。
+
+参考:
+
+- [Internationalized Resource Identifiers (IRIs)](https://www.w3.org/International/O-URL-and-ident.html)
+
+内部では `django.utils.encoding.iri_to_uri()` が使用されます。
 
 ### `join`
 
+`list` 等の iterable を引数で指定された文字で結合します。
+ちょうど Python の `str.join()` と似た挙動をします。
+
 ```django
+{{ value|join:' / ' }}
 ```
+
+上のコードで `value` が `['<a href="/">ホームへ</a>', '<strong>強調</strong>']` の場合の出力は次のとおりです。
+
+```
+&lt;a href="/"&gt;リンク&lt;/a&gt; / &lt;strong&gt;強調&lt;/strong&gt;
+```
+
+iterable の各要素は `join` の時点でエスケープされます。
 
 ### `json_script`
 
+Python オブジェクトを JSON として安全に出力し `<script>` タグで囲います。
+Python から JavaScript に値を渡すときに使用します。
+
 ```django
+{{ value|json_script:"hello-data" }}
+```
+
+上のコードで `value` が `{'hello': 'world'}` という `dict` の場合、次の内容が出力されます。
+
+```html
+<script id="hello-data" type="application/json">{"hello": "world"}</script>
+```
+
+引数には `<script>` タグの `id` アトリビュートの値を指定します。
+
+XSS 攻撃対策として `<` と `>` と `&` をエスケープします。
+
+この値は次の形で JavaScript でアクセスできます。
+
+```js
+var value = JSON.parse(document.getElementById('hello-data').textContent);
 ```
 
 ### `language_bidi`
@@ -1298,17 +1480,26 @@ var value = `{{ value|escapejs }}`;
 ### `naturalday`
 
 ```django
+{% load humanize %}
 ```
+
+尚このタグを利用するには、設定項目 `INSTALLED_APPS` に `django.contrib.humanize` を追加する必要があります。
 
 ### `naturaltime`
 
 ```django
+{% load humanize %}
 ```
+
+尚このタグを利用するには、設定項目 `INSTALLED_APPS` に `django.contrib.humanize` を追加する必要があります。
 
 ### `ordinal`
 
 ```django
+{% load humanize %}
 ```
+
+尚このタグを利用するには、設定項目 `INSTALLED_APPS` に `django.contrib.humanize` を追加する必要があります。
 
 ### `phone2numeric`
 
