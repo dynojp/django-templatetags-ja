@@ -1576,8 +1576,13 @@ body = """昔々あるところに
 
 ### `ljust`
 
+文字列を引数で指定された幅の中で左寄せします。
+
 ```django
+"{{ value|ljust:"10" }}"
 ```
+
+上のコードで `value` の値が `"Django"` のとき、出力は `"Django    "` になります。
 
 ### `localize`
 
@@ -1591,13 +1596,28 @@ body = """昔々あるところに
 
 ### `lower`
 
+文字列の中の大文字をすべて小文字に変換します。
+
 ```django
+{{ value|lower }}
 ```
+
+上のコードで `value` の値が `"Toy Story 3"` のとき、出力は `toy story 4` になります。
 
 ### `make_list`
 
+値を `list` 化します。
+
 ```django
+{{ value|make_list }}
 ```
+
+例:
+
+| 変換前 | 変換後 |
+| --- | --- |
+| `"Jumanji"` (`str`) | `['J', 'u', 'm', 'a', 'n', 'j', 'i']` |
+| `527` (`int`) | `['5', '2', '7']` |
 
 ### `naturalday`
 
@@ -1625,12 +1645,38 @@ body = """昔々あるところに
 
 ### `phone2numeric`
 
+英字を含む電話番号を数字表現に変換します。
+
 ```django
+{{ value|phone2numeric }}
 ```
+
+上のコードで `value` の値が `"800-COLLECT"` のとき、出力は `800-2655328` になります。
+
+日本語のサイトではほとんど使い途は無さそうです。
 
 ### `pluralize`
 
+複数形の接尾語を出力します。
+デフォルトは `s` です。
+
 ```django
+You have {{ num_messages }} message{{ num_messages|pluralize }}.
+```
+
+上のコードで `num_messages` が 1 のとき、出力は `You have 1 message.` になります。
+`num_messages` が 2 のとき、出力は `You have 2 messages.` になります。
+
+引数で接尾語を `s` 以外のものに変更することができます。
+
+```django
+You have {{ num_walruses }} walrus{{ num_walruses|pluralize:"es" }}.
+```
+
+接尾語の有無だけでカバーできない単語の場合は、単数形と複数形を `,` でつなげたものを引数に指定すれば OK です。
+
+```django
+You have {{ num_cherries }} cherr{{ num_cherries|pluralize:"y,ies" }}.
 ```
 
 ### `pprint`
@@ -1735,22 +1781,63 @@ body = """昔々あるところに
 
 ### `upper`
 
+文字列の中の小文字をすべて大文字に変換します。
+
 ```django
+{{ value|upper }}
 ```
+
+上のコードで `value` の値が `"red hot chilli peppers"` のとき、出力は `RED HOT CHILLI PEPPERS` になります。
 
 ### `urlencode`
 
+値を URL エンコードします。
+
 ```django
+{{ value|urlencode }}
 ```
+
+上のコードで `value` の値が `"https://www.example.org/foo?a=b&c=d"` のとき、出力は `https%3A//www.example.org/foo%3Fa%3Db%26c%3Dd` になります。
+
+引数で文字を渡すと、その文字はエスケープされません。
+引数が渡されたなかったときは `/` だけがエスケープ対象外となります。
+
+内部では `urllib.parse.quote()` が使われています。
 
 ### `urlize`
 
+プレーンテキスト内の URL とメールアドレスをリンクタグ（ `<a>` ）に変換します。
+
 ```django
+{{ value|urlize }}
 ```
+
+例:
+
+| 変換前 | 変換後 |
+| --- | --- |
+| `https://example.com/contact/` | `<a href="https://example.com/contact/" rel="nofollow">https://example.com/contact/</a>` |
+| `質問は contact@example.com まで` | `質問は <a href="mailto:contact@example.com">contact@example.com</a> まで` |
+
+リンクタグには `rel="nofollow"` 属性が必ず付けられます。
+
+内部では `django.utils.html.urlize()` が使われています。
+HTML マークアップを含む文字列や `'` を含むメールアドレスに対しては期待どおりに動かないので注意してください。
 
 ### `urlizetrunc`
 
+プレーンテキスト内の URL とメールアドレスをリンクタグ（ `<a>` ）に変換します。
+
 ```django
+{{ value|urlizetrunc:10 }}
+```
+
+基本的には `urlize` と同じですが、引数でリンクアンカーの最大文字数を指定できます。
+
+上のコードで `value` の値が `"質問は contact@example.com まで"` のとき、出力は次のとおりになります。
+
+```html
+質問は <a href="mailto:contact@example.com">contact@e…</a> まで
 ```
 
 ### `utc`
@@ -1760,18 +1847,54 @@ body = """昔々あるところに
 
 ### `wordcount`
 
+単語数を返します。
+
 ```django
+{{ value|wordcount }}
 ```
+
+上のコードで `value` の値が `"Just Read the Instructions"` のとき、出力は `4` になります。
 
 ### `wordwrap`
 
+英文を指定された文字数で折り返します。
+
 ```django
+{{ value|wordwrap:5 }}
 ```
+
+上のコードで `value` の値が `"Of Course I Still Love You"` のとき、出力は次のとおりになります。
+
+```html
+Of
+Course
+I
+Still
+Love
+You
+```
+
+ただし HTML のソース内で改行をしても通常ブラウザで見たときには改行にならないため注意が必要です。
+ブラウザで見たときにも改行されるようにするには「 `<pre>` タグで囲う」「後ろに `linebreaksbr` フィルタを付ける」等の対応が必要です。
 
 ### `yesno`
 
+値が `True` か `False` か `None` かによって異なる文字列を出力します。
+
 ```django
+{{ value|yesno:"オンです,オフです,Noneです" }}
 ```
+
+引数には、値が `True` のときに出力したい文字列、 `False` のときに出力したい文字列、 `None` のときに出力したい文字列を `,` でつなげたものを渡します。
+
+`None` のときの文字列はオプションです。
+指定されなかった場合は、値が `None` のときは `False` のときの文字列が出力されます。
+
+```django
+{{ value|yesno:"yeah,no" }}
+```
+
+引数を渡さなかったときは `yes,no,maybe` （を翻訳したもの）が使われます。
 
 ## 参考
 
