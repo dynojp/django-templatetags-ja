@@ -2125,8 +2125,14 @@ You
 ## 参考
 
 - [Built-in template tags and filters | Django documentation | Django](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/)
+    - 公式の一覧
 - [`django.contrib.humanize` | Django documentation | Django](https://docs.djangoproject.com/en/3.0/ref/contrib/humanize/)
-- [Translation | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#specifying-translation-strings-in-template-code)
-- [Format localization | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/formatting/#topic-l10n-templates)
-- [Time zones | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/timezones/#time-zones-in-templates)
+    - タグセット `humanize` の説明
+- [Internationalization: in template code | Translation | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#specifying-translation-strings-in-template-code)
+    - タグセット `i18n` の説明
+- [Controlling localization in templates | Format localization | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/formatting/#topic-l10n-templates)
+    - タグセット `l10n` の説明
+- [Time zone aware output in templates | Time zones | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/timezones/#time-zones-in-templates)
+    - タグセット `tz` の説明
 - [Custom template tags and filters | Django documentation | Django](https://docs.djangoproject.com/en/3.0/howto/custom-template-tags/)
+    - オリジナルのテンプレートタグ・テンプレートフィルタの作り方の説明
