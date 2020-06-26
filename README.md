@@ -1136,6 +1136,8 @@ HTML の特殊文字をエスケープします。
 
 このエスケープ処理はデフォルトで有効になっているため、通常のコンテキストでは効果はありません（エスケープが二重に走ったりはしません）。
 
+内部では `django.utils.html.conditional_escape()` が使われています。
+
 `escape` フィルタは `autoescape` タグで自動エスケープを無効にしたときに選択的にエスケープをしたいときに有用です。
 
 ```django
@@ -1246,7 +1248,9 @@ HTML の特殊文字をエスケープします。
 </pre>
 ```
 
-レアケースを除き通常は `escape` を使います。
+内部では `django.utils.html.escape()` が使われています。
+
+レアケースを除き通常は `escape` フィルタを使います。
 
 ### `get_current_timezone`
 
@@ -1681,38 +1685,104 @@ You have {{ num_cherries }} cherr{{ num_cherries|pluralize:"y,ies" }}.
 
 ### `pprint`
 
+変数を見やすい形に出力する `pprint.pprint()` のラッパーです。
+
 ```django
+{{ value|pprint }}
 ```
+
+厳密に言うと内部では `pprint.pprint()` ではなく `pprint.pformat()` が使われています。
 
 ### `random`
 
+指定された `list` の中からランダムに要素をひとつ返します。
+
 ```django
+{{ value|random }}
 ```
+
+上のコードで `value` が `['ランボー', 'ランボー 怒りの脱出', 'ランボー 3 怒りのアフガン']` という `list` だったとき、出力は `ランボー 3 怒りのアフガン` 等になります。
+
+内部では `random.choice()` が使われています。
 
 ### `rjust`
 
+文字列を引数で指定された幅の中で右寄せします。
+
 ```django
+"{{ value|rjust:"10" }}"
 ```
+
+上のコードで `value` の値が `"Django"` のとき、出力は `"    Django"` になります。
 
 ### `safe`
 
+値をエスケープ済みの安全な値としてマークし、出力時の HTML エスケープを行いません。
+
 ```django
+{{ value|safe }}
 ```
+
+上のコードで `value` の値が `<a href="/there">here</a>` という `str` だったとき、 `a` タグのリンクが出力されます。
+
+`safe` の後ろにフィルタを繋げる場合は注意が必要です。
+`safe` で一度エスケープ済みとしてマークされた文字列はその後のエスケープ処理をパスしてしまうことがあります。
+
+例えば、次のコードで `value` に上と同じ `<a href="/there">here</a>` という `str` を渡したとき、出力はエスケープされずに `a` タグのリンクが出力されます。
+
+```django
+{{ value|safe|escape }}
+```
+
+これは、 `escape` フィルタに「安全な値としてマークされた値を二重にエスケープしない機能」が備わっているために起こります。
 
 ### `safeseq`
 
+iterable なオブジェクトの各要素に `safe` フィルタを適用します。
+
 ```django
+{{ value|safeseq|join:", " }}
 ```
 
 ### `slice`
 
+`list` のスライスを返します。
+
 ```django
+{{ value|slice:":2" }}
+```
+
+Python のスライスシンタックス `alist[start:stop:step]` と同じ形で切り出し方を指定できます。
+
+例えば次のコードは `value` の要素を逆順に出力します。
+
+```django
+{{ value|slice:"-1::-1" }}
 ```
 
 ### `slugify`
 
+文字列を URL のスラッグに変換します。
+
 ```django
+{{ value|slugify }}
 ```
+
+具体的には次の処理を行います。
+
+- ユニコードを `NFKD` に標準化
+- ASCII に変換
+- 英数字と `-` ・ `_` 以外の文字を除去
+- スペースを `-` に変換
+
+| 変換前 | 変換後 |
+| --- | --- |
+| `Have You Ever Seen the Rain?` | `have-you-ever-seen-the-rain` |
+| `café latte` | `cafe-latte` |
+| `富士山` | （空文字列） |
+
+    # context['value'] = 'Have You Ever Seen the Rain?'
+    context['value'] = 'café latte'
 
 ### `stringformat`
 
