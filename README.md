@@ -1603,7 +1603,11 @@ body = """昔々あるところに
 
 ### `localtime`
 
+日時オブジェクトのタイムゾーンを現在のタイムゾーンに変換します。
+
 ```django
+{% load tz %}
+{{ value|localtime }}
 ```
 
 ### `lower`
