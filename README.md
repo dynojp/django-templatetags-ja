@@ -104,10 +104,10 @@ Python ベースのウェブアプリケーションフレームワーク Django
     - [`timeuntil`](#timeuntil)
     - [`timezone`](#timezone)
     - [`title`](#title)
-    - [`truncatechars_html`](#truncatechars_html)
     - [`truncatechars`](#truncatechars)
-    - [`truncatewords_html`](#truncatewords_html)
+    - [`truncatechars_html`](#truncatechars_html)
     - [`truncatewords`](#truncatewords)
+    - [`truncatewords_html`](#truncatewords_html)
     - [`unlocalize`](#unlocalize)
     - [`unordered_list`](#unordered_list)
     - [`upper`](#upper)
@@ -1590,8 +1590,15 @@ body = """昔々あるところに
 
 ### `localize`
 
+文字列をローカラズします。
+
 ```django
+{% load l10n %}
+{{ value|localize }}
 ```
+
+設定項目 `USE_L10N` よりも細かい粒度での制御ができます。
+大きなパーツに対してローカライゼーションを制御したい場合には `localize` タグが便利です。
 
 ### `localtime`
 
@@ -1786,67 +1793,209 @@ Python のスライスシンタックス `alist[start:stop:step]` と同じ形�
 
 ### `stringformat`
 
+フォーマット指定子で指定されたとおりに値をフォーマットします。
+
 ```django
+{{ value|stringformat:"E" }}
 ```
+
+利用できるフォーマット指定子は `printf` スタイルのフォーマット指定子の先頭の `%` を除去したものです。
+
+- [printf-style String Formatting | Built-in Types — Python 3 documentation](https://docs.python.org/3/library/stdtypes.html#old-string-formatting)
 
 ### `striptags`
 
+HTML （ XHTML ）タグを除去します。
+
 ```django
+{{ value|striptags }}
 ```
+
+ただし、出力される HTML が安全である保証は無いので、 `striptags` の後に `safe` フィルタを付けて使うことのないようにしましょう。
+Django 公式ドキュメントでは、確かなストリップ処理を求める場合は `bleach` ライブラリの `clean()` 関数を使うことが推奨されています。
+
+- [Sanitizing text fragments — Bleach documentation](https://bleach.readthedocs.io/en/latest/clean.html)
 
 ### `time`
 
+時刻を表すオブジェクトを引数で指定されたフォーマットの文字列に変換します。
+
 ```django
+{{ value|time:"H:i" }}
 ```
+
+`datetime.datetime` と `datetime.time` がサポートされています。
+
+フォーマット指定には `date` フィルタと同じく PHP の `date()` 関数と似たフォーマット指定子が利用できます。
+また、 `TIME_FORMAT` と指定すると設定項目 `TIME_FORMAT` で指定されたフォーマットが使えます。
+
+```django
+{{ value|time:"TIME_FORMAT" }}
+```
+
+`time` フィルタは時刻部分のみをサポートしています。
+日付部分も含めたい場合は `date` フィルタを使ってください。
 
 ### `timesince`
 
+指定された日時からの経過時間（差分）を文字列として出力します。
+
 ```django
+{{ posted_at|timesince:current }}
 ```
+
+上のコードで `posted_at` の値が `dateime.datetime(2018, 5, 27, 3, 32, 0)` で `current` の値が `datetime.datetime(2018, 5, 27, 9, 20, 0)` のとき、出力は `5 hours 48 minutes` になります。
+
+引数を省略した場合、現在時刻からの差分が出力されます。
+最小の単位は「分」です。
+
+内部では `django.utils.timesince.timesince()` が使われます。
 
 ### `timeuntil`
 
+指定された日時までの時間（差分）を文字列として出力します。
+
 ```django
+{{ sale_start_at|timeuntil:current }}
 ```
+
+上のコードで `sale_start_at` の値が `dateime.datetime(2021, 5, 27, 3, 32, 0)` で `current` の値が `datetime.datetime(2021, 5, 24, 1, 20, 0)` のとき、出力は `3 days 2 hours` になります。
+
+`timesince` と同様、引数を省略した場合は現在時刻からの差分が出力されます。
+最小の単位は「分」です。
+
+内部では `django.utils.timesince.timeuntil()` が使われます。
 
 ### `timezone`
 
+日時オブジェクトを指定されたタイムゾーンに変換します。
+
 ```django
+{% load tz %}
+{{ value|timezone:"Asia/Tokyo" }}
 ```
+
+引数には `datetime.tzinfo` のサブクラスのインスタンスかタイムゾーンを表す文字列が使えます。
 
 ### `title`
 
-```django
-```
-
-### `truncatechars_html`
+文字列の中の各単語の先頭の文字を大文字に、残りの文字を小文字に変換します。
 
 ```django
+{{ value|title }}
 ```
+
+上のコードで `value` の値が `just DO IT` のとき、出力は `Just Do It` になります。
 
 ### `truncatechars`
 
-```django
-```
-
-### `truncatewords_html`
+文字列を指定された字数に切り詰めます。
 
 ```django
+{{ value|truncatechars:7 }}
 ```
+
+文字列が指定された字数よりも長い場合は、指定された字数を越える部分が切り落とされて末尾の文字が `…` になります。
+日本語の文字も 1 文字として扱われます。
+
+上のコードで `value` の値が `奥田民生になりたいボーイと出会う男すべて狂わせるガール` のとき、出力は `奥田民生にな…` になります。
+
+### `truncatechars_html`
+
+文字列を指定された字数に切り詰めます。
+HTML が壊れないように、開いたままのタグがあれば末尾で閉じられます。
+
+```django
+{{ value|truncatechars_html:10 }}
+```
+
+上のコードで `value` の値が `<strong>シティーハンター THE MOVIE 史上最香のミッション</strong>` のとき、出力は `<strong>シティーハンター …</strong>
+` になります。
+結果の HTML をエスケープせずにそのまま出力したい場合は、その後に `safe` フィルタ等を繋げる必要があります。
 
 ### `truncatewords`
 
+文章の文字列を指定された単語数に切り詰めます。
+
 ```django
+{{ value|truncatewords:3 }}
+```
+
+上のコードで `value` の値が `I'm Mary Poppins Y'All` のとき、出力は `I'm Mary Poppins …` になります。
+
+日本語の文章に対して使うことは稀です。
+
+### `truncatewords_html`
+
+文章の文字列を指定された単語数に切り詰めます。
+HTML が壊れないように、開いたままのタグがあれば末尾で閉じられます。
+
+```django
+{{ value|truncatewords_html:4 }}
 ```
 
 ### `unlocalize`
 
+文字列のローカライズを無効にします。
+
 ```django
+{% load l10n %}
+{{ value|unlocalize }}
 ```
+
+設定項目 `USE_L10N` よりも細かい粒度での制御ができます。
 
 ### `unordered_list`
 
+ネストされた `list` を `<ul>` と `<li>` でリスト化します。
+ただし、ルートの `<ul>` は出力されないので、利用時に `<ul>` で囲う必要があります。
+
 ```django
+<ul class="favorite-books">
+{{ value|unordered_list }}
+</ul>
+```
+
+上のコードで `value` が次のとおりに定義された `list` のとき、
+
+```python
+value = [
+    'Awesome Mix vol. 1',
+    [
+        'Hooked on a Feeling',
+        'Go All The Way',
+        'Spirit In The Sky',
+        "Ain't No Mountain High Enough",
+    ],
+    'Awesome Mix vol. 2',
+    [
+        'Mr. Blue Sky',
+        'Fox on the Run',
+        'Bring It on Home to Me',
+    ],
+]
+```
+
+次の HTML が出力されます。
+
+```html
+<ul class="favorite-books">
+    <li>Awesome Mix vol. 1
+    <ul>
+        <li>Hooked on a Feeling</li>
+        <li>Go All The Way</li>
+        <li>Spirit In The Sky</li>
+        <li>Ain&#x27;t No Mountain High Enough</li>
+    </ul>
+    </li>
+    <li>Awesome Mix vol. 2
+    <ul>
+        <li>Mr. Blue Sky</li>
+        <li>Fox on the Run</li>
+        <li>Bring It on Home to Me</li>
+    </ul>
+    </li>
+</ul>
 ```
 
 ### `upper`
@@ -1912,8 +2061,14 @@ HTML マークアップを含む文字列や `'` を含むメールアドレス�
 
 ### `utc`
 
+日時オブジェクトのタイムゾーンを UTC に変換します。
+
 ```django
+{% load tz %}
+{{ value|utc }}
 ```
+
+上のコードで `value` のタイムゾーンが `Asia/Tokyo` で時刻が 10:00 のとき、返される日時オブジェクトはタイムゾーンが `UTC` で時刻が 01:00 になります。
 
 ### `wordcount`
 
