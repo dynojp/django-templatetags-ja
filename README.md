@@ -11,6 +11,7 @@ Python ベースのウェブアプリケーションフレームワーク Django
     - [`autoescape`](#autoescape)
     - [`block`](#block)
     - [`blocktrans`](#blocktrans)
+    - [`cache`](#cache)
     - [`comment`](#comment)
     - [`csrf_token`](#csrf_token)
     - [`cycle`](#cycle)
@@ -168,6 +169,43 @@ This is {{ book_t }} by {{ author_t }}
 ```
 
 変数は `with` の後に渡します。
+
+### `cache`
+
+範囲内の文字列をキャッシュします。
+
+```django
+{% load cache %}
+{% cache 500 sidebar %}
+    .. sidebar ..
+{% endcache %}
+```
+
+最低限 2 つの引数を受け取ります。
+ひとつめはキャッシュタイムアウト時間、ふたつめはキャッシュフラグメントの名前です。
+キャッシュフラグメントはそのまま文字として認識されるので、変数を使うことはできません。
+
+ユーザーグループやユーザーの単位でキャッシュを分けたい場合は、第 3 引数以降を使用します。
+
+```django
+{% load cache %}
+{% cache 500 sidebar request.user.username %}
+    .. sidebar for logged in user ..
+{% endcache %}
+```
+
+デフォルトでキャッシュバックエンドには `template_fragments` という名前のものがあればそれが使われます。
+存在しない場合は `default` が使われます。
+
+これが必要な場面は稀だと思いますが、 `using` キーワード引数を使って他のキャッシュバックエンドを指定することもできます。
+
+```django
+{% cache 300 local-thing ...  using="localcache" %}
+```
+
+キャッシュについては奥が深いので公式ページの説明もチェックしてください。
+
+- [Template fragment caching | Django’s cache framework | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/cache/#template-fragment-caching)
 
 ### `comment`
 
@@ -2130,6 +2168,8 @@ You
 
 - [Built-in template tags and filters | Django documentation | Django](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/)
     - 公式の一覧
+- [Template fragment caching | Django’s cache framework | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/cache/#template-fragment-caching)
+    - タグセット `cache` の説明
 - [`django.contrib.humanize` | Django documentation | Django](https://docs.djangoproject.com/en/3.0/ref/contrib/humanize/)
     - タグセット `humanize` の説明
 - [Internationalization: in template code | Translation | Django documentation | Django](https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#specifying-translation-strings-in-template-code)
